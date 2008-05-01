@@ -68,19 +68,19 @@ sub auth {
     $agent->credentials($tw_auth_host, $tw_auth_realm, $user, $pass);
     $agent->agent($user_agent);
     $agent->env_proxy();
-    $::world->echonl("Usuário autenticado (ou não...)");
+    $::world->echonl("Authed (or not *rs*).");
 }
 
 sub status {
     ($status) = @_;
     unless ($agent) {
-        $::world->echonl("Use /twauth <login> <senha> antes.");
+        $::world->echonl('You must authenticate with "/twauth <login> <password>" before.');
         return;
     }
     utf8::encode($status);
     my $res = $agent->post($tw_status_url,
         [ status => $status, source => $tw_source ]);
-    $::world->echonl("Resultado: " . $res->code . " " . $res->message);
+    $::world->echonl("Result: " . $res->code . " " . $res->message);
 }
 
 
