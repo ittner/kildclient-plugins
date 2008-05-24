@@ -8,7 +8,7 @@ package espeak;
 # Configuração --------------------------------------------------------------
 
 # Caminho para o eSpeak. Mude conforme seu sistema.
-our $speakcmd = "/home/dermeister/espeak/speak -v pt";
+our $speakcmd = "padsp /usr/bin/espeak -v pt";
 
 #TO DO: Ajustes de volume, SSML, etc.
 
