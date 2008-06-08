@@ -1,5 +1,5 @@
 package espeak;
-#: Version: 0.2.4
+#: Version: 0.2.5
 #: Description: Interface para o sintetizador "espeak".
 #: Author: Alexandre "dermeister" Erwin Ittner
 #-*- coding: utf-8 -*-
@@ -8,7 +8,7 @@ package espeak;
 # Configuração --------------------------------------------------------------
 
 # Caminho para o eSpeak. Mude conforme seu sistema.
-our $speakcmd = "padsp /usr/bin/espeak -v pt";
+our $speakcmd = "padsp /usr/bin/espeak -m -v pt";
 
 #TO DO: Ajustes de volume, SSML, etc.
 
@@ -178,6 +178,7 @@ $::world->hook('OnReceivedText', '/espeak::speak($hookdata)',
 $::world->alias('^\/speak$', '/espeak::toggle',
     { name => 'espeak:toggle' });
 
+$::world->alias('^\/srate *(.+)$', '/espeak::prosody("rate", "$1")');
 
 sub UNLOAD {
     closepipe();
@@ -187,6 +188,8 @@ sub help {
     $::world->echonl("Plugin eSpeak para o Kildclient",
     "Comandos disponíveis:",
     "/speak         Ativa/desativa a fala",
+    "/srate <valor> Velocidade da fala. Valores válidos são x-slow, slow,",
+    "               medium, fast, x-fast ou default.",
     "",
 
     "Comandos não implementados (ainda)",
@@ -194,11 +197,6 @@ sub help {
     "/vol +x        Aumenta o volume em X níveis.",
     "/vol -         Reduz o volume em um nível.",
     "/vol -x        Reduz o volume em X níveis.",
-
-    "/pitch +       Aumenta a velocidade em um nível.",
-    "/pitch +x      Aumenta a velocidade em X níveis.",
-    "/pitch -       Reduz a velocidade em um nível.",
-    "/pitch -x      Reduz a velocidade em X níveis.",
 
     "/skip          Pára o sintetizador e retoma a fala dos textos novos.",
 
@@ -278,61 +276,71 @@ sub format_time {
 }
 
 
+sub send_to_pipe {
+    my ($text) = @_;
+    if ($pipe) {
+        print $pipe "$text\n";
+    }
+}
+
+
+sub prosody {
+    my ($attribute, $value) = @_;
+    # TODO: Fix this SSML.
+    send_to_pipe("<prosody $attribute=\"$value\">");
+    speak("Mudanças na configuração de prosódia aplicadas com sucesso.");
+}
+
+
 sub speak {
     my ($text) = @_;
 
-    if ($pipe) {
-        $text = ::stripansi($text);
-        
-        # Prompt, canais de log, etc
-        if ($text =~ m/^(:|Comm|Log|Auth|Build|Monitor):/ ) {
-            return;
-        }
-
-        # WHO
-        if ($text =~ m/^\[/ )  { return; }
-
-        # Evita a pronúncia de números gigantescos (inclusive hexadecimais).
-        $text =~ s/[0-9a-f]{6,}/ seqüência numérica longa /gi;
-
-        # Datas e horas
-        $text =~ s/([0-9]+[.\/-][0-9]+[.\/-][0-9]+)/read_date("$1")/ge;
-        $text =~ s/\b([0-9]{1,2})[h: ]+([0-9]{1,2})["m: ]+([0-9]{1,2})?["s]?\b/format_time($1,$2)/ge;
-
-        my($key, $value);
-        while (($key, $value) = each(%subtbl)) {
-            $text =~ s/\b$key\b/$value/ig;
-        }
-        
-        while (($key, $value) = each(%abbrevrepl)) {
-            $text =~ s/$key/$value/ig;
-        }
-
-        # Interpretação da lista de saídas. Será eliminado pelo modo aural.
-        if ($text =~ /^Saídas: /) {
-            $text =~ s/\s!/ fechado /ig;
-            while (($key, $value) = each(%exitrepl)) {
-                $text =~ s/\b$key\b/$value,/ig;
-            }
-        }
-
-        # Quantidades, ex: (42x) uma toalha.
-        $text =~ s/\(2x\)/duas vezes/ig;
-        $text =~ s/\(([0-9]+)x\)/$1 vezes/ig;
-
-        # Interpretar as hitbars, etc.
-        # Suprimir ascii art?
-        # Suprimir coisas como /[|+_=.-]/.
-
-        #$::world->echonl("DEBUG: $text");
-#        if ($filter) {
-#            if ($text =~ m/$filter/i) {
-#                print $pipe "$text\n";
-#            }
-#        } else {
-           print $pipe "$text\n";
-#        }
+    $text = ::stripansi($text);
+    
+    # Ignora prompt, canais de log, etc
+    if ($text =~ m/^(:|Comm|Log|Auth|Build|Monitor):/ ) {
+        return;
     }
+
+    # Ignora o WHO
+    if ($text =~ m/^\[/ )  { return; }
+
+    # Evita a pronúncia de números gigantescos.
+    # $text =~ s/[0-9]{6,}/ seqüência numérica longa /gi;
+
+    # Datas e horas
+    $text =~ s/([0-9]+[.\/-][0-9]+[.\/-][0-9]+)/read_date("$1")/ge;
+    $text =~ s/\b([0-9]{1,2})[h: ]+([0-9]{1,2})["m: ]+([0-9]{1,2})?["s]?\b/format_time($1,$2)/ge;
+
+    my($key, $value);
+    while (($key, $value) = each(%subtbl)) {
+        $text =~ s/\b$key\b/$value/ig;
+    }
+    
+    while (($key, $value) = each(%abbrevrepl)) {
+        $text =~ s/$key/$value/ig;
+    }
+
+    # Interpretação da lista de saídas. Será eliminado pelo modo aural.
+    if ($text =~ /^Saídas: /) {
+        $text =~ s/\s!/ fechado /ig;
+        while (($key, $value) = each(%exitrepl)) {
+            $text =~ s/\b$key\b/$value,/ig;
+        }
+    }
+
+    # Quantidades, ex: (42x) uma toalha.
+    $text =~ s/\(2x\)/duas vezes/ig;
+    $text =~ s/\(([0-9]+)x\)/$1 vezes/ig;
+    
+    # Suprime SSML
+    $text =~ s/[<>]//g;
+
+    # Interpretar as hitbars, etc.
+    # Suprimir ascii art?
+    # Suprimir coisas como /[|+_=.-]/.
+    
+    send_to_pipe($text);
 }
 
 sub toggle {
