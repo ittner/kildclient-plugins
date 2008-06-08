@@ -178,7 +178,15 @@ $::world->hook('OnReceivedText', '/espeak::speak($hookdata)',
 $::world->alias('^\/speak$', '/espeak::toggle',
     { name => 'espeak:toggle' });
 
-$::world->alias('^\/srate *(.+)$', '/espeak::prosody("rate", "$1")');
+$::world->alias('^\/prosody +([^ ]+) +(.+)$', '/espeak::prosody("$1", "$2")',
+    { name => 'espeak:prosody' });
+
+$::world->alias('^\/voice +([^ ]+) +(.+)$', '/espeak::voice("$1", "$2")',
+    { name => 'espeak:voice' });
+
+$::world->alias('^\/srate *(.+)$', '/espeak::prosody("rate", "$1")',
+    { name => 'espeak:srate' });
+
 
 sub UNLOAD {
     closepipe();
@@ -186,20 +194,17 @@ sub UNLOAD {
 
 sub help {
     $::world->echonl("Plugin eSpeak para o Kildclient",
-    "Comandos disponíveis:",
-    "/speak         Ativa/desativa a fala",
+    "Comandos disponíveis:\n",
+    "/speak         Ativa/desativa a fala\n",
     "/srate <valor> Velocidade da fala. Valores válidos são x-slow, slow,",
-    "               medium, fast, x-fast ou default.",
+    "               medium, fast, x-fast ou default.\n",
+    "/prosody <atributo> <valor> Muda atributos de prosódia da voz atual.",
+    "                            (documentar os valores e atributos)\n",
+    "/voice <atributo> <valor> Muda atributos da voz atual.",
+    "                          (documentar os valores e atributos)\n",
     "",
-
     "Comandos não implementados (ainda)",
-    "/vol +         Aumenta o volume em um nível.",
-    "/vol +x        Aumenta o volume em X níveis.",
-    "/vol -         Reduz o volume em um nível.",
-    "/vol -x        Reduz o volume em X níveis.",
-
     "/skip          Pára o sintetizador e retoma a fala dos textos novos.",
-
     "/phonadd texto pronúncia Adiciona pronúncia especial para 'texto'.",
     "/phonrem texto           Exclui pronúncia especial para 'texto'.",
     "/phonlist                Lista as pronúncias especiais."
@@ -283,14 +288,23 @@ sub send_to_pipe {
     }
 }
 
+sub ssml {
+    my ($tag, $attribute, $value) = @_;
+    # TODO: Fix this SSML.
+    send_to_pipe("<$tag $attribute=\"$value\">");
+}
 
 sub prosody {
     my ($attribute, $value) = @_;
-    # TODO: Fix this SSML.
-    send_to_pipe("<prosody $attribute=\"$value\">");
+    ssml("prosody", $attribute, $value);
     speak("Mudanças na configuração de prosódia aplicadas com sucesso.");
 }
 
+sub voice {
+    my ($attribute, $value) = @_;
+    ssml("voice", $attribute, $value);
+    speak("Mudanças na configuração de voz aplicadas com sucesso.");
+}
 
 sub speak {
     my ($text) = @_;
