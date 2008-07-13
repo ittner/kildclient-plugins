@@ -16,9 +16,18 @@ $::world->trigger('^([A-Za-z]+\>.*)', '/notify::msgSimple("mtalk", "MUD Valinor 
 
 $::world->trigger('^\(OOC\) (.*telepaticamente.*)', '/notify::msgSimple("tell", "MUD Valinor - Tell", $_[1], 5000)', 
     { name => 'valinorNotifications:tell' });
-    
+
+$::world->trigger('^Comm: ([A-Za-z]*)@([0-9.]+) has connected.',
+    '/notify::msgSimple("tell", "MUD Valinor - Conexão", "$_[1] conectou-se de $_[2]", 5000)', 
+    { name => 'valinorNotifications:connection' });
+
+$::world->trigger('^Comm: ([A-Za-z]*)@([0-9.]+) has quit.',
+    '/notify::msgSimple("tell", "MUD Valinor - Desconexão", "$_[1] saiu", 5000)', 
+    { name => 'valinorNotifications:connection' });
 
 sub help {
     $::world->echonl("Alertas para uma série de eventos do MUD Valinor.");
 }
+
+
 
