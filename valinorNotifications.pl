@@ -1,5 +1,5 @@
 package valinorNotifications;
-#: Version: 0.0.2
+#: Version: 0.0.3
 #: Description: Alertas de eventos do MUD Valinor
 #: Author: Alexandre Erwin Ittner
 
@@ -32,23 +32,23 @@ $::world->hook('OnLoseFocus', '/valinorNotifications::toggle(1)',
 
 $::world->trigger('^\(OOC\) (.*telepaticamente.*)',
     '/valinorNotifications::message("tell", "Tell", $_[1])', 
-    { name => 'valinorNotifications:tell' });
+    { name => 'valinorNotifications:tell', keepexecuting => 1 });
 
 $::world->trigger('^\(OOC\) (.*)',
     '/valinorNotifications::message("chat", "Chat", $_[1])',
-    { name => 'valinorNotifications:chat' });
+    { name => 'valinorNotifications:chat', keepexecuting => 1 });
 
 $::world->trigger('^([A-Za-z]+[\)\>].*)',
     '/valinorNotifications::message("mtalk", "MTalk", $_[1])', 
-    { name => "valinorNotifications:mtalk" });
+    { name => 'valinorNotifications:mtalk', keepexecuting => 1 });
 
 $::world->trigger('^Comm: ([A-Za-z]*)@([0-9.]+)\(.*has connected\.',
     '/valinorNotifications::message("login", "Conexão", "$_[1] conectou-se de $_[2]")', 
-    { name => 'valinorNotifications:login' });
+    { name => 'valinorNotifications:login', keepexecuting => 1 });
 
 $::world->trigger('^Comm: ([A-Za-z]*)@([0-9.]+) has quit',
     '/valinorNotifications::message("logout", "Desconexão", "$_[1] saiu")', 
-    { name => 'valinorNotifications:logout' });
+    { name => 'valinorNotifications:logout', keepexecuting => 1 });
 
 sub help {
     $::world->echonl("Alertas para uma série de eventos do MUD Valinor.");
