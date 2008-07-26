@@ -28,7 +28,7 @@ sub sendtrack {
     my $dbus_srv = $bus->get_service("org.freedesktop.DBus");
     my $dbus_obj = $dbus_srv->get_object("/org/freedesktop/DBus", "org.freedesktop.DBus");
     my $running_services =  $dbus_obj->ListNames();
-    my $ok = undef;
+    my $ok = 0;
     
     foreach my $tmp (@{$running_services}) {
         if ($tmp eq "org.gnome.Rhythmbox") {
