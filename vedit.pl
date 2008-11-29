@@ -1,5 +1,5 @@
 package vedit;
-#: Version: 0.9.5
+#: Version: 0.9.6
 #: Description: Interface com o editor de texto do MUD Valinor
 #: Author: Alexandre "dermeister" Erwin Ittner
 
@@ -10,15 +10,15 @@ package vedit;
 # Use 'notepad.exe' no Windows (mas salve o texto em utf-8, não 16).
 our $editor = 'gedit';
 
-# Limite de linhas a enviar por segundo. Use um valor saudável ou o MUD irá
-# desconectá-lo por flood.
+# Limite de linhas a enviar por segundo. Use um valor saudável ou o MUD
+# irá desconectá-lo por flood.
 our $linespersec = 4;
 
 # Número máximo de linhas permitidas por página de texto no editor do MUD.
 our $maxlines = 48;
 
 # Prefixo do arquivo temporário usado para edição.
-# Use 'c:\windows\temp\' no Windows.
+# Use 'c:\windows\temp\vedit' no Windows.
 our $tmpprefix = $ENV{'HOME'} . '/tmp/vedit';
 
 
