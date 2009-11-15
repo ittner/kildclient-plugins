@@ -18,9 +18,9 @@ $::world->hook('OnGetFocus', '/dermalert::toggle(0)',
 $::world->hook('OnLoseFocus', '/dermalert::toggle(1)',
     { name => 'dermalert:toggle' });
 
-$::world->trigger('^(.*(derm|Derm|DERM).*)$',
+$::world->trigger('^(.*derm.*)$',
     '/dermalert::message("tell", "MUD chamando Dermeister!", $_[1])', 
-    { name => 'dermalert:alert', keepexecuting => 1 });
+    { name => 'dermalert:alert', ignorecase => 1, keepexecuting => 1 });
 
 
 sub help {
