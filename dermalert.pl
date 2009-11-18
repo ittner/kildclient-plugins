@@ -31,7 +31,7 @@ sub toggle {
     my ($status) = @_;
     if ($status == 1) {
         $enabled = 1;
-        notify::msgSimple('status', "MUD Valinor", "Dermalert ativado!", 1500);
+        #notify::msgSimple('status', "MUD Valinor", "Dermalert ativado!", 1500);
     } else {
         $enabled = undef;
     }
