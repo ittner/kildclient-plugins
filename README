@@ -1,16 +1,20 @@
 
-Meus plugins para o KildClient (http://kildclient.sourceforge.net/), 
-destinados para uso com o MUD Valinor (http://mud.valinor.com.br/)
+Meus plugins para o KildClient ( http://kildclient.sourceforge.net/ ), 
+destinados para uso com o MUD Valinor ( http://mud.valinor.com.br/ )
 
 Todo este código é distribuído sob a GNU General Public License versão 2
 ou, sob sua opção, qualquer versão posterior.
 Veja: http://www.gnu.org/licenses/gpl-2.0.html
 
+Sinta-se livre para duplicar e contribuir!
+
 --
 
-My plugins for KildClient (http://kildclient.sourceforge.net/), intended
-for use with MUD Valinor (http://mud.valinor.com.br/)
+My plugins for KildClient ( http://kildclient.sourceforge.net/ ), intended
+for use with MUD Valinor ( http://mud.valinor.com.br/ )
 
 All this code is distributed under the GNU General Public License version 2
 or, at your option, any later version.
 See: http://www.gnu.org/licenses/gpl-2.0.html
+
+Feel free to fork and contribute!
