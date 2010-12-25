@@ -139,6 +139,7 @@ sub send_text {
     if ($state == EDITING_TEXT) {
         $state = SENDING_TEXT;
         $::world->send('/c');
+        fix_empty_lines($fname);
         $::world->sendfile($fname, 1, $linespersec);
 #        $::world->send('/s');
         unlink($fname);
@@ -147,4 +148,26 @@ sub send_text {
     } else {
         $::world->echonl("** Não há nenhum texto carregado para enviar. **");
     }
+}
+
+# O KC não gosta de linhas em branco no arquivo. Trata o caso colocando
+# um espaço quando necessário.
+
+sub fix_empty_lines {
+    my ($fname) = @_;
+    my @lines;
+    open(FD, $fname);
+    while ($line = <FD>) {
+        if ($line eq "\n") {
+            push(@lines, " \n");
+        } else {
+            push(@lines, $line);
+        }
+    }
+    close(FD);
+    open(FD, ">$fname");
+    foreach $line (@lines) {
+        print FD ($line);
+    }
+    close(FD);
 }
